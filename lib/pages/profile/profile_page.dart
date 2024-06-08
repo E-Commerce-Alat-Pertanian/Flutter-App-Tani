@@ -34,7 +34,9 @@ class ProfilePage extends StatelessWidget {
             ProfileMenu(
               text: "My orders",
               icon: "assets/icons/Cart Icon.svg",
-              press: () {},
+              press: () {
+                Navigator.pushNamed(context, "/Orders");
+              },
             ),
             ProfileMenu(
               text: "Settings",

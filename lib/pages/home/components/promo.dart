@@ -8,8 +8,9 @@ class Promo extends StatelessWidget {
   Widget build(BuildContext context) {
     return CarouselSlider(
       items: [
-        _buildCarouselItem('assets/images/promo1.png'),
-        _buildCarouselItem('assets/images/promo2.png'),
+        _buildCarouselItem('assets/images/banner1.png'),
+        _buildCarouselItem('assets/images/banner2.png'),
+        _buildCarouselItem('assets/images/banner3.png'),
         // Add more images here...
       ],
       options: CarouselOptions(
@@ -32,7 +33,7 @@ class Promo extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.0),
         image: DecorationImage(
           image: AssetImage(assetPath),
-          fit: BoxFit.cover,
+          fit: BoxFit.contain, // Use BoxFit.contain to preserve aspect ratio
         ),
       ),
     );

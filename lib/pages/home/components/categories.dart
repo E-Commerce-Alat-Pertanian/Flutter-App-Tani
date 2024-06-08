@@ -17,7 +17,7 @@ class Categories extends StatelessWidget {
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> categories = [
       {"image": "assets/images/pupuk.png", "id": "1"},
-      {"image": "assets/images/pesticida.png", "id": "2"},
+      {"image": "assets/images/pestisida.png", "id": "2"},
       {"image": "assets/images/bibit.png", "id": "3"},
       {"image": "assets/images/alat.png", "id": "4"},
     ];
@@ -78,7 +78,7 @@ class CategoryCard extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-            margin: const EdgeInsets.symmetric(horizontal: 9),
+            margin: const EdgeInsets.symmetric(horizontal: 8),
             height: 60,
             width: 60,
             decoration: BoxDecoration(

@@ -43,18 +43,18 @@ class ProdukViewModel extends ChangeNotifier {
     }
   }
 
-  Future<ProdukModel?> getProductById(String idProduct) async {
-    try {
-      final response = await http.get(Uri.parse('$_endpoint/:idProduct'));
-      log("Get produk by ID:\n${response.body}");
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final produk = ProdukModel.fromJson(data);
-        return produk;
-      }
-    } catch (e) {
-      log(e.toString());
-    }
-    return null;
-  }
+  // Future<ProdukModel?> getProductById(String idProduct) async {
+  //   try {
+  //     final response = await http.get(Uri.parse('$_endpoint/:idProduct'));
+  //     log("Get produk by ID:\n${response.body}");
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body) as Map<String, dynamic>;
+  //       final produk = ProdukModel.fromJson(data);
+  //       return produk;
+  //     }
+  //   } catch (e) {
+  //     log(e.toString());
+  //   }
+  //   return null;
+  // }
 }

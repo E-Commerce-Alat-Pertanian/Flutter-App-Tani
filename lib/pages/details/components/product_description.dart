@@ -52,7 +52,7 @@ class _ProductDescriptionState extends State<ProductDescription> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  "Tersedia: ${widget.produk.stock}",
+                  "Tersedia: ${widget.produk.stok}",
                   style: const TextStyle(
                     color: Color(0xFF4CAF50),
                     fontSize: 15,

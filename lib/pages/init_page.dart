@@ -30,7 +30,7 @@ class _InitPageState extends State<InitPage> {
   final pages = [
     const HomePage(),
     const FavoritePage(),
-    // const CartPage(),
+    const CartPage(),
     const ProfilePage()
   ];
 
@@ -61,19 +61,19 @@ class _InitPageState extends State<InitPage> {
             ),
             label: "Fav",
           ),
-          // BottomNavigationBarItem(
-          //   icon: SvgPicture.asset(
-          //     "assets/icons/order.svg",
-          //     color:
-          //         currentSelectedIndex == 2 ? kPrimaryColor : inActiveIconColor,
-          //   ),
-          //   label: "Cart",
-          // ),
+          BottomNavigationBarItem(
+            icon: SvgPicture.asset(
+              "assets/icons/order.svg",
+              color:
+                  currentSelectedIndex == 2 ? kPrimaryColor : inActiveIconColor,
+            ),
+            label: "Cart",
+          ),
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               "assets/icons/User Icon.svg",
               color:
-                  currentSelectedIndex == 2 ? kPrimaryColor : inActiveIconColor,
+                  currentSelectedIndex == 3 ? kPrimaryColor : inActiveIconColor,
             ),
             label: "Profile",
           ),

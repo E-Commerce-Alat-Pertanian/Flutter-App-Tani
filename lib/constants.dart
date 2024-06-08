@@ -8,13 +8,12 @@ class AppConstants {
   static const namaApk = "Karim Fashion";
   static const logoApk = "assets/images/logo.png";
 
-  static const secondary = Color(0xFFF2994A);
+  static const secondary = Color.fromARGB(255, 104, 188, 247);
   static const primary = Color(0xFF002C55);
-  static const danger = Color(0xFFFF4A4A);
+  static const danger = Color.fromARGB(255, 72, 191, 255);
 
-  static const baseUrl = "http://192.168.19.45:5000";
-  static const UrlImage = "http://localhost:5000";
-  static const rekening = "7171717"; // TODO: rekening
+  static const baseUrl = "http://192.168.116.45:5000";
+  static const rekening = "BSI: 7171717"; // TODO: rekening
   static String? token;
 }
 

@@ -192,22 +192,13 @@ class _RegisterPageState extends State<RegisterPage> {
                 FormInput(
                   hintText: "Nomor HP",
                   controller: _noHpController,
+                  keyboardType: TextInputType.phone,
                 ),
                 const SizedBox(height: 10),
                 FormInput(
                   hintText: "Masukkan alamat",
                   controller: _alamatController,
                   multiline: true,
-                ),
-                const SizedBox(height: 10),
-                FormInputPass(
-                  hintText: "Password",
-                  controller: _passwordController,
-                ),
-                const SizedBox(height: 10),
-                FormInputPass(
-                  hintText: "Confirm Password",
-                  controller: _confirmpasswordController,
                 ),
                 Dropdown(
                   value: _idProvinsi,
@@ -237,6 +228,16 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Text(e.nama),
                     );
                   }).toList(),
+                ),
+                const SizedBox(height: 10),
+                FormInputPass(
+                  hintText: "Password",
+                  controller: _passwordController,
+                ),
+                const SizedBox(height: 10),
+                FormInputPass(
+                  hintText: "Confirm Password",
+                  controller: _confirmpasswordController,
                 ),
                 const SizedBox(height: 20),
                 Padding(

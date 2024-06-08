@@ -1,7 +1,4 @@
 import 'package:app_tani_sejahtera/components/product_card.dart';
-
-import 'package:app_tani_sejahtera/pages/details/detail_page.dart';
-import 'package:app_tani_sejahtera/pages/home/components/section_more.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -64,7 +61,11 @@ class AllProduct extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               final model = kategoriList[index];
-              return ProductCard(model: model);
+
+              return ProductCard(
+                model: model,
+                showDeleteIcon: false,
+              );
             },
           ),
         ),

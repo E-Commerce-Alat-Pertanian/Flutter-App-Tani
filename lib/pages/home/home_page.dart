@@ -65,7 +65,6 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 10),
               const Promo(),
-              const SizedBox(height: 10),
               Categories(
                 activeKategori: _activeKategori,
                 onTap: updateKategori,

@@ -4,19 +4,22 @@ import 'dart:developer';
 import 'package:app_tani_sejahtera/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/kecamatan_model.dart';
-import '../models/provinsi_model.dart';
 import '../models/user_model.dart';
+import '../view_models/daerah_view_model.dart';
 
 class UserViewModel extends ChangeNotifier {
   final _endpoint = "${AppConstants.baseUrl}/user";
   UserModel? _currentUser;
   String? _token;
+  String? _kecamatanName;
 
   UserModel? get currentUser => _currentUser;
   String? get token => _token;
+  String? get kecamatanName => _kecamatanName;
 
   set token(String? newToken) => _setToken(newToken);
 
@@ -173,6 +176,21 @@ class UserViewModel extends ChangeNotifier {
     return error;
   }
 
+  Future<void> fetchKecamatanName(BuildContext context) async {
+    final user = _currentUser;
+    if (user != null && user.idKecamatan != null) {
+      try {
+        final kecamatan = await context
+            .read<DaerahViewModel>()
+            .getKecamatanById(user.idKecamatan!);
+        _kecamatanName = kecamatan.nama;
+        notifyListeners();
+      } catch (e) {
+        log("Error fetching kecamatan: $e");
+      }
+    }
+  }
+
   Future<void> _setToken(String? token) async {
     AppConstants.token = token;
     _token = token;
@@ -205,18 +223,4 @@ class UserViewModel extends ChangeNotifier {
     token = null;
     return false;
   }
-
-  // void _setToken(String? token) async {
-  //   AppConstants.token = token;
-  //   _token = token; // Tambahkan baris ini
-  //   final prefs = await SharedPreferences.getInstance();
-  //   if (token == null) {
-  //     prefs.remove("TOKEN");
-  //   } else {
-  //     prefs.setString("TOKEN", token);
-  //     log("Token disimpan: $token");
-  //   }
-
-  //   notifyListeners();
-  // }
 }

@@ -3,12 +3,10 @@ import 'package:provider/provider.dart';
 
 import '../../../models/kecamatan_model.dart';
 import '../../../models/provinsi_model.dart';
-import '../../../models/user_model.dart';
 import '../../../view_models/daerah_view_model.dart';
 import '../../../view_models/user_view_model.dart';
 import '../../../widgets/dropdown_widget.dart';
 import '../../../widgets/form_input.dart';
-import '../../profile/components/profile_edit.dart';
 
 class AddressEdit extends StatefulWidget {
   const AddressEdit({Key? key}) : super(key: key);
@@ -57,15 +55,21 @@ class _AddressEditState extends State<AddressEdit> {
 
   Future<void> submitUpdate() async {
     final userViewModel = context.read<UserViewModel>();
+    final daerahViewModel = context.read<DaerahViewModel>();
     final noHp = _noHpController.text;
     final alamat = _alamatController.text;
     final idKecamatan = _idKecamatan;
 
     final error = await userViewModel.updateAddress(noHp, alamat, idKecamatan!);
     if (error.isEmpty) {
-      Navigator.pushNamed(context, "/EditProfile");
+      // Fetch updated profile after address update
+      await userViewModel.getProfile();
+      // Trigger fetchKecamatanName after updating the profile
+      await userViewModel.fetchKecamatanName(context);
+      // Call getOngkir to update the shipping cost
+      await daerahViewModel.getOngkir();
+      Navigator.pop(context);
     } else {
-      // Tampilkan pesan kesalahan jika terjadi kesalahan
       showDialog(
         context: context,
         builder: (context) {
@@ -95,8 +99,7 @@ class _AddressEditState extends State<AddressEdit> {
         padding: const EdgeInsets.symmetric(horizontal: 36),
         child: ListView(
           children: [
-            const SizedBox(
-                height: kToolbarHeight), // Spacer untuk menjaga jarak dari atas
+            const SizedBox(height: kToolbarHeight),
             const Text(
               "Perbarui Alamat",
               style: TextStyle(fontSize: 22),

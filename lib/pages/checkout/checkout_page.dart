@@ -1,142 +1,152 @@
-// checkout_page.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:app_tani_sejahtera/models/address.dart';
-import 'package:app_tani_sejahtera/pages/address/address_page.dart';
+import 'package:provider/provider.dart';
+import '../../models/keranjang_model.dart';
+import '../../models/order_model.dart';
+import '../../models/pembayaran_model.dart';
+import '../../view_models/daerah_view_model.dart';
+import '../../view_models/order_view_model.dart';
+import '../address/address_page.dart';
+import 'components/keranjang_section.dart';
+import 'components/metode_bayar_section.dart';
+import 'components/pengiriman_section.dart';
+import 'components/rincian_section.dart';
+import 'components/submit_section.dart';
+import 'components/total_pesanan.dart';
 
 class CheckoutPage extends StatefulWidget {
-  final double totalPrice;
-  final Address? selectedAddress;
+  // final KeranjangModel? keranjang;
 
-  const CheckoutPage({
-    Key? key,
-    required this.totalPrice,
-    this.selectedAddress,
-  }) : super(key: key);
-
+  const CheckoutPage({super.key});
   @override
-  _CheckoutPageState createState() => _CheckoutPageState();
+  State<CheckoutPage> createState() => _CheckoutPageState();
 }
 
 class _CheckoutPageState extends State<CheckoutPage> {
-  Address? selectedAddress;
+  final _listPembayaran = [
+    PembayaranModel(
+      gambar: "assets/images/bibit.png",
+      text: "COD",
+    ),
+    PembayaranModel(
+      gambar: "assets/images/pupuk.png",
+      text: "Transfer Bank",
+    ),
+  ];
+
+  int _indexPembayaran = 0;
+  bool _loading = true;
+
+  void submitPesanan(List<KeranjangModel> listKeranjang, int totalHarga) {
+    final ongkir = context.read<DaerahViewModel>().ongkir;
+    if (ongkir == null) return;
+    setState(() => _loading = true);
+
+    final pembayaran = _listPembayaran[_indexPembayaran];
+    final order = OrderModel(
+      status: "Pending", // Menambahkan argumen status di sini
+      // keranjang: widget.keranjang!,
+      metodeBayar: pembayaran,
+      ongkir: ongkir,
+      totalPembayaran: totalHarga,
+    );
+
+    context
+        .read<OrderViewModel>()
+        .createOrder(order, listKeranjang)
+        .then((value) {
+      setState(() => _loading = false);
+      if (pembayaran.text == "COD") {
+        Navigator.pop(context);
+      } else {
+        Navigator.pushNamed(
+          context,
+          "/berhasil",
+          arguments: totalHarga + ongkir,
+        ).then((_) => Navigator.pop(context));
+      }
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<DaerahViewModel>().getOngkir().then((value) {
+      setState(() => _loading = false);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final formattedTotalPrice =
-        NumberFormat("###,###,###").format(widget.totalPrice);
+    final listKeranjang =
+        ModalRoute.of(context)!.settings.arguments as List<KeranjangModel>;
+
+    int totalHarga = 0;
+    for (var keranjang in listKeranjang) {
+      totalHarga += (keranjang.produk.price * keranjang.quantity).toInt();
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text("Checkout"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Alamat Pengiriman",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 1,
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
+      body: Consumer<DaerahViewModel>(
+        builder: (context, daerahViewModel, child) {
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "${selectedAddress?.name} - ${selectedAddress?.phone}",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                  Text(
+                    "Alamat Pengiriman",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  AddressWidget(),
+                  Container(
+                    padding: EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          spreadRadius: 1,
+                          blurRadius: 5,
+                          offset: Offset(0, 2),
                         ),
-                        SizedBox(height: 5),
-                        Text(selectedAddress?.address ?? ""),
                       ],
                     ),
+                    child: KeranjangSection(listKeranjang: listKeranjang),
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      // // final newAddress = await Navigator.push<Address?>(
-                      // //   context,
-                      // //   MaterialPageRoute(
-                      // //     builder: (context) =>
-                      // //         // AddressWidget(selectedAddress: selectedAddress),
-                      // //   ),
-                      // );
-                      // if (newAddress != null) {
-                      //   setState(() {
-                      //     selectedAddress = newAddress;
-                      //   });
-                      // }
-                    },
-                    child: Text(
-                      "Change",
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                  PengirimanSection(ongkir: daerahViewModel.ongkir),
+                  TotalPesananSection(
+                    totalProduk: listKeranjang.length,
+                    totalHarga: totalHarga,
                   ),
+                  MetodeBayarSection(
+                    listPembayaran: _listPembayaran,
+                    activeIndex: _indexPembayaran,
+                    onChange: (index) =>
+                        setState(() => _indexPembayaran = index),
+                  ),
+                  RincianSection(
+                    totalHarga: totalHarga,
+                    ongkir: daerahViewModel.ongkir,
+                  ),
+                  Divider(),
+                  SizedBox(height: 20),
+                  SubmitSection(
+                    totalHarga: totalHarga,
+                    ongkir: daerahViewModel.ongkir,
+                    loading: _loading,
+                    onSubmit: () => submitPesanan(listKeranjang, totalHarga),
+                  ),
+                  SizedBox(height: 20),
                 ],
               ),
             ),
-            Spacer(),
-            Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Total:",
-                  style: TextStyle(color: Colors.grey),
-                ),
-                Text(
-                  "Rp. $formattedTotalPrice",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Action for placing the order
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 15),
-                  primary: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                child: Text(
-                  "BUAT PESANAN",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
