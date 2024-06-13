@@ -1,4 +1,5 @@
 import 'package:app_tani_sejahtera/models/pembayaran_model.dart';
+import '../constants.dart'; // Import AppConstants
 import 'keranjang_model.dart';
 
 class OrderModel {
@@ -7,6 +8,9 @@ class OrderModel {
   final PembayaranModel metodeBayar;
   final int ongkir;
   final int totalPembayaran;
+  final String? kodeUnik;
+  final String? imageKurir;
+  final String? imagePembayaran;
   final List<KeranjangModel>? keranjang;
 
   OrderModel({
@@ -15,17 +19,18 @@ class OrderModel {
     required this.metodeBayar,
     required this.ongkir,
     required this.totalPembayaran,
+    this.kodeUnik,
+    this.imageKurir,
+    this.imagePembayaran,
     this.keranjang,
   });
 
   factory OrderModel.fromJson(Map<String, dynamic> json) {
-    // Log JSON data to understand the issue
     print('OrderModel.fromJson - JSON data: $json');
 
-    // Ensure that metodeBayar is correctly deserialized
+    // Deserialize metodeBayar
     final metodeBayarData = json['metodeBayar'];
     PembayaranModel metodeBayar;
-
     if (metodeBayarData is String) {
       metodeBayar = PembayaranModel(
         gambar: '',
@@ -37,7 +42,7 @@ class OrderModel {
       throw Exception("Format metodeBayar tidak valid");
     }
 
-    // Deserialize the keranjang list
+    // Deserialize keranjang
     final List<KeranjangModel> keranjang = [];
     if (json.containsKey('keranjangs') && json['keranjangs'] is List) {
       keranjang.addAll((json['keranjangs'] as List)
@@ -45,12 +50,23 @@ class OrderModel {
           .toList());
     }
 
+    // Create full URLs for images
+    final imageKurir = json['imageKurir'];
+    final imagePembayaran = json['imagePembayaran'];
+
     return OrderModel(
       id: json["idOrder"],
       status: json["status"],
       metodeBayar: metodeBayar,
       ongkir: json['ongkir'],
       totalPembayaran: json['totalPembayaran'],
+      kodeUnik: json['kodeUnik'],
+      imageKurir: imageKurir != null && imageKurir.isNotEmpty
+          ? "${AppConstants.baseUrl}/images/$imageKurir"
+          : null,
+      imagePembayaran: imagePembayaran != null && imagePembayaran.isNotEmpty
+          ? "${AppConstants.baseUrl}/images/$imagePembayaran"
+          : null,
       keranjang: keranjang.isNotEmpty ? keranjang : null,
     );
   }
@@ -59,9 +75,12 @@ class OrderModel {
     return {
       "id": id,
       "status": status,
-      "metodeBayar": metodeBayar.text, // Ensure we get the text part for toMap
+      "metodeBayar": metodeBayar.text,
       "ongkir": ongkir,
       "totalPembayaran": totalPembayaran,
+      "kodeUnik": kodeUnik,
+      "imageKurir": imageKurir,
+      "imagePembayaran": imagePembayaran,
       "keranjang": keranjang?.map((item) => item.toMap()).toList() ?? [],
     };
   }

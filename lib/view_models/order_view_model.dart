@@ -1,8 +1,11 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:async/async.dart';
 
 import '../constants.dart';
 import '../models/keranjang_model.dart';
@@ -16,7 +19,7 @@ class OrderViewModel extends ChangeNotifier {
   List<OrderModel> get listOrder => _listOrder;
   ServerStatus get status => _status;
 
-  Future createOrder(
+  Future<bool> createOrder(
       OrderModel order, List<KeranjangModel> listKeranjang) async {
     final mapKeranjang = listKeranjang.map((e) => e.toMap()).toList();
     final token = AppConstants.token;
@@ -34,7 +37,14 @@ class OrderViewModel extends ChangeNotifier {
         }),
       );
       log("Create order:\n${response.body}");
-      return response.statusCode == 201;
+
+      if (response.statusCode == 201) {
+        // Fetch orders again to update the list
+        await getOrder();
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       log(e.toString());
       return false;
@@ -74,5 +84,30 @@ class OrderViewModel extends ChangeNotifier {
       _status = ServerStatus.error;
     }
     notifyListeners();
+  }
+
+  Future<bool> uploadImagePembayaran(File image, int idOrder) async {
+    final token = AppConstants.token;
+    final uri = Uri.parse("$_endpoint/$idOrder");
+
+    try {
+      var request = http.MultipartRequest('PATCH', uri)
+        ..headers.addAll({
+          "Authorization": "Bearer $token",
+        })
+        ..files.add(await http.MultipartFile.fromPath('file', image.path));
+
+      var response = await request.send();
+
+      if (response.statusCode == 201) {
+        return true;
+      } else {
+        log("Failed to upload image: ${response.statusCode}");
+        return false;
+      }
+    } catch (e) {
+      print(e.toString());
+      return false;
+    }
   }
 }

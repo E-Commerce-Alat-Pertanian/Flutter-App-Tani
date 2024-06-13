@@ -25,7 +25,7 @@ class CartCard extends StatelessWidget {
     final total = keranjang.quantity * keranjang.produk.price;
     final hargaString = NumberFormat('###,###,###').format(total);
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 1),
+      margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -51,7 +51,13 @@ class CartCard extends StatelessWidget {
                   color: const Color(0xFFF5F6F9),
                   borderRadius: BorderRadius.circular(15),
                 ),
-                child: Image.network(keranjang.produk.gambar),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    keranjang.produk.gambar,
+                    fit: BoxFit.cover,
+                  ),
+                ),
               ),
             ),
           ),
@@ -67,63 +73,57 @@ class CartCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 8),
-                Text.rich(
-                  TextSpan(
-                    text: "Rp $hargaString",
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w600, color: kPrimaryColor),
+                Text(
+                  "Rp $hargaString",
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: kPrimaryColor,
+                    fontSize: 16,
                   ),
                 ),
-                Container(
-                  height: 25,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black26),
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 30,
-                        child: InkWell(
-                          onTap: () {
-                            if (keranjang.quantity > 1) {
-                              updateKeranjang(
-                                index,
-                                --keranjang.quantity,
-                              );
-                            }
-                          },
-                          child: const Icon(Icons.remove),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if (keranjang.quantity > 1) {
+                          updateKeranjang(index, keranjang.quantity - 1);
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey),
                         ),
+                        child: const Icon(Icons.remove),
                       ),
-                      Container(
-                        width: 50,
-                        height: double.infinity,
-                        decoration: const BoxDecoration(
-                          border: Border.symmetric(
-                            vertical: BorderSide(color: Colors.black26),
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            keranjang.quantity.toString(),
-                            style: const TextStyle(color: AppConstants.danger),
-                          ),
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      keranjang.quantity.toString(),
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      SizedBox(
-                        width: 30,
-                        child: InkWell(
-                          onTap: () {
-                            updateKeranjang(
-                              index,
-                              ++keranjang.quantity,
-                            );
-                          },
-                          child: const Icon(Icons.add),
+                    ),
+                    const SizedBox(width: 12),
+                    GestureDetector(
+                      onTap: () {
+                        updateKeranjang(index, keranjang.quantity + 1);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.grey),
                         ),
+                        child: const Icon(Icons.add),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -135,6 +135,7 @@ class CartCard extends StatelessWidget {
             child: SvgPicture.asset(
               "assets/icons/Trash.svg",
               color: kPrimaryColor,
+              height: 24,
             ),
           ),
         ],

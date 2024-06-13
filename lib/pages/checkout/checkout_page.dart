@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+
+import '../../constants.dart';
 import '../../models/keranjang_model.dart';
 import '../../models/order_model.dart';
 import '../../models/pembayaran_model.dart';
 import '../../view_models/daerah_view_model.dart';
 import '../../view_models/order_view_model.dart';
+import '../../view_models/user_view_model.dart';
 import '../address/address_page.dart';
 import 'components/keranjang_section.dart';
 import 'components/metode_bayar_section.dart';
@@ -14,9 +18,8 @@ import 'components/submit_section.dart';
 import 'components/total_pesanan.dart';
 
 class CheckoutPage extends StatefulWidget {
-  // final KeranjangModel? keranjang;
+  const CheckoutPage({Key? key}) : super(key: key);
 
-  const CheckoutPage({super.key});
   @override
   State<CheckoutPage> createState() => _CheckoutPageState();
 }
@@ -24,11 +27,11 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final _listPembayaran = [
     PembayaranModel(
-      gambar: "assets/images/bibit.png",
+      gambar: "assets/images/cash-on-delivery.png",
       text: "COD",
     ),
     PembayaranModel(
-      gambar: "assets/images/pupuk.png",
+      gambar: "assets/images/payment.png",
       text: "Transfer Bank",
     ),
   ];
@@ -36,35 +39,55 @@ class _CheckoutPageState extends State<CheckoutPage> {
   int _indexPembayaran = 0;
   bool _loading = true;
 
-  void submitPesanan(List<KeranjangModel> listKeranjang, int totalHarga) {
+  void submitPesanan(List<KeranjangModel> listKeranjang, int totalHarga) async {
     final ongkir = context.read<DaerahViewModel>().ongkir;
-    if (ongkir == null) return;
+    if (ongkir == null) {
+      // Handle case when ongkir is null
+      print("Ongkir is null, cannot proceed with submission.");
+      return;
+    }
     setState(() => _loading = true);
 
     final pembayaran = _listPembayaran[_indexPembayaran];
+    final user = context.read<UserViewModel>().currentUser;
+
+    final keranjangIds =
+        listKeranjang.map((keranjang) => keranjang.id).join('');
+
     final order = OrderModel(
-      status: "Pending", // Menambahkan argumen status di sini
-      // keranjang: widget.keranjang!,
+      status: "Pending",
       metodeBayar: pembayaran,
       ongkir: ongkir,
+      kodeUnik: "${user?.id}${user?.idKecamatan}${keranjangIds}UDTS",
       totalPembayaran: totalHarga,
     );
 
-    context
-        .read<OrderViewModel>()
-        .createOrder(order, listKeranjang)
-        .then((value) {
+    // Create order and wait for the result
+    final success =
+        await context.read<OrderViewModel>().createOrder(order, listKeranjang);
+
+    if (success) {
+      // Fetch the latest order list
+      await context.read<OrderViewModel>().getOrder();
+      final newOrder = context.read<OrderViewModel>().listOrder.last;
+
       setState(() => _loading = false);
       if (pembayaran.text == "COD") {
         Navigator.pop(context);
       } else {
+        // Navigate to BerhasilPage with necessary arguments
         Navigator.pushNamed(
           context,
           "/berhasil",
-          arguments: totalHarga + ongkir,
+          arguments: {
+            'total': totalHarga + ongkir,
+            'idOrder': newOrder.id, // Use the id from the latest order
+          },
         ).then((_) => Navigator.pop(context));
       }
-    });
+    } else {
+      setState(() => _loading = false);
+    }
   }
 
   @override
